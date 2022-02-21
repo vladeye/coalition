@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+
+    <link href="bootstrap/css/bootstrap.css" rel="stylesheet">
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script type="text/javascript" src="http://w2ui.com/src/w2ui-1.5.min.js"></script>
+</head>
+<body>
+    <div id="myForm" class="form-horizontal">
+        <fieldset>
+            <legend>Coalition PHP/javascript Test</legend>
+            <div class="control-group">
+                <label class="control-label" for="product_name">Product name</label>
+                <div class="controls">
+                    <input type="text" class="input-xlarge" id="product_name" name="product_name">
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="quantity_in_stock">Quantity in stock:</label>
+                <div class="controls">
+                    <input type="text" class="input-xlarge" name="quantity_in_stock" id="quantity_in_stock">
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="price_per_item">Price per item:</label>
+                <div class="controls">
+                    <input type="text" class="input-xlarge" name="price_per_item" id="price_per_item">
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <input type="button" class="btn btn-primary" value="Save" name="save"></input>
+                <input type="button" class="btn" value="Reset" name="reset"></input>
+            </div>
+        </fieldset>
+    </div>
+    <!--/form-->
+</body>
+<script>
+    $(function () {
+        $('#myForm').w2form({
+            name   : 'myForm',
+            fields : [
+                { field: 'product_name', type: 'text', required: true },
+                { field: 'quantity_in_stock',  type: 'text', required: true },
+                { field: 'price_per_item',   type: 'text'}
+            ],
+            actions: {
+                reset: function () {
+                    this.clear();
+                },
+                save: function () {
+                    console.log('crazy');
+                    //this.save();
+                }
+            }
+        });
+    });
+</script>
+</html>
