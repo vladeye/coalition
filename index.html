@@ -5,42 +5,79 @@
     <link href="bootstrap/css/bootstrap.css" rel="stylesheet">
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script type="text/javascript" src="http://w2ui.com/src/w2ui-1.5.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://w2ui.com/src/w2ui.min.css" />
+
 </head>
-<body>
-    <div id="myForm" class="form-horizontal">
+<body style="visibility: visible !important;">
+    <div  class="form-horizontal" style="visibility: visible !important;">
         <fieldset>
             <legend>Coalition PHP/javascript Test</legend>
             <div class="control-group">
                 <label class="control-label" for="product_name">Product name</label>
                 <div class="controls">
-                    <input type="text" class="input-xlarge" id="product_name" name="product_name">
+                    <input type="text" class="input-xlarge required" id="product_name" name="product_name">
                 </div>
             </div>
             <div class="control-group">
                 <label class="control-label" for="quantity_in_stock">Quantity in stock:</label>
                 <div class="controls">
-                    <input type="text" class="input-xlarge" name="quantity_in_stock" id="quantity_in_stock">
+                    <input type="text" class="input-xlarge required" name="quantity_in_stock" id="quantity_in_stock">
                 </div>
             </div>
             <div class="control-group">
                 <label class="control-label" for="price_per_item">Price per item:</label>
                 <div class="controls">
-                    <input type="text" class="input-xlarge" name="price_per_item" id="price_per_item">
+                    <input type="text" class="input-xlarge required" name="price_per_item" id="price_per_item">
                 </div>
             </div>
 
             <div class="form-actions">
-                <input type="button" class="btn btn-primary" value="Save" name="save"></input>
-                <input type="button" class="btn" value="Reset" name="reset"></input>
+                <input id="save-inventory" type="button" class="btn btn-primary" value="Save" name="save"></input>
+                <input id="reset-inventory" type="button" class="btn" value="Reset" name="reset"></input>
             </div>
         </fieldset>
     </div>
     <!--/form-->
+
+    <div id="gridInventory" style="width: 100%; height: 400px;"></div>
+
 </body>
 <script>
+    function defaulttextRemove(){
+        $('.required').each(function(){
+            var defaultVal = $(this).attr('title');
+            //if ($(this).val() == defaultVal){
+            $(this).val('');
+            //}
+        });
+    }
+    $('#save-inventory')
+        .on('click', (e) => {
+            e.preventDefault();
+
+            //defaulttextRemove();
+            $('.controls').removeClass('error');
+            $('span.error').remove();
+            $('.required').each(function(){
+                var inputVal = $(this).val();
+                var $parentTag = $(this).parent();
+                if(inputVal == '') {
+                    $parentTag.addClass('error').append('<span class="error">Required field</span>');
+                }
+            });
+            if ($('span.error').length == "0") {
+                console.log('no error')
+            }
+        });
+    $('#reset-inventory')
+        .on('click', (e) => {
+            e.preventDefault();
+            defaulttextRemove();
+        });
+
     $(function () {
-        $('#myForm').w2form({
-            name   : 'myForm',
+        $('#theForm').w2form({
+            name   : 'theForm',
             fields : [
                 { field: 'product_name', type: 'text', required: true },
                 { field: 'quantity_in_stock',  type: 'text', required: true },
@@ -56,6 +93,43 @@
                 }
             }
         });
+        $('#gridInventory').w2grid({
+            name: 'gridInventory',
+            header: '<label style="color: #2e6da4; font-weight: bold; ">Inventory</label>',
+            show: {      // config grid toolbar, header and footer
+                toolbar: true,
+                header: true,
+                footer: false,
+                toolbarAdd: false,
+                toolbarDelete: false,
+                toolbarEdit: false
+            },
+            method: 'GET', // need this to avoid 412 error on Safari
+            searches: [
+                { field: 'product_name', text: 'Product name', type: 'text' },
+                { field: 'quantity_in_stock', text: 'Quantity in stock', type: 'text' },
+                { field: 'price_per_item', text: 'Price per item', type: 'text' },
+                { field: 'created_at', text: 'Created At', type: 'date' }
+            ],
+            columns: [
+                { field: 'product_name', text: 'Product name', size: '30%', sortable: true },
+                { field: 'quantity_in_stock', text: 'Quantity in stock', size: '20%', sortable: true },
+                { field: 'price_per_item', text: 'Price per item', size: '30%', sortable: true },
+                { field: 'created_at', text: 'Created At', size: '20%', sortable: true }
+
+            ],
+            onLoad: function (event) {
+                console.log('onload');
+                const newRecord = {
+                    w2ui: { summary: true },  recid: 20, product_name: '', quantity_in_stock: '<span style="float: right;">Total</span>', price_per_item: '4', created_at: ''
+                };
+                w2ui.gridInventory.add($.extend(true, { recid: w2ui.gridInventory.records.length + 1 }, newRecord));
+            },
+        });
+        w2ui['gridInventory'].load('http://172.27.30.27:8000/inventory');
+
     });
+
+
 </script>
 </html>
