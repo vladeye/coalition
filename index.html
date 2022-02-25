@@ -114,16 +114,28 @@
             columns: [
                 { field: 'product_name', text: 'Product name', size: '30%', sortable: true },
                 { field: 'quantity_in_stock', text: 'Quantity in stock', size: '20%', sortable: true },
-                { field: 'price_per_item', text: 'Price per item', size: '30%', sortable: true },
-                { field: 'created_at', text: 'Created At', size: '20%', sortable: true }
-
+                { field: 'price_per_item', text: 'Price per item', size: '20%', sortable: true },
+                { field: 'created_at', text: 'Created At', size: '20%', sortable: true },
+                { field: 'total_value_number', text: 'Total value number', size: '20%', sortable: true }
             ],
             onLoad: function (event) {
                 console.log('onload');
-                const newRecord = {
-                    w2ui: { summary: true },  recid: 20, product_name: '', quantity_in_stock: '<span style="float: right;">Total</span>', price_per_item: '4', created_at: ''
-                };
-                w2ui.gridInventory.add($.extend(true, { recid: w2ui.gridInventory.records.length + 1 }, newRecord));
+
+                event.onComplete = function () {
+                    let totalValue = 0;
+                    for(let i = 0; i < w2ui.gridInventory.records.length; i++){
+                        totalValue += parseFloat(w2ui.gridInventory.records[i]['total_value_number']);
+                    }
+                    const newRecord = {
+                        w2ui: {summary: true},
+                        product_name: '',
+                        quantity_in_stock: '',
+                        price_per_item: '',
+                        created_at: '<span style="float: right;font-weight: bold">Total</span>',
+                        total_value_number: totalValue
+                    };
+                    w2ui.gridInventory.add($.extend(true, {recid: w2ui.gridInventory.records.length + 1}, newRecord));
+                }
             },
         });
         w2ui['gridInventory'].load('http://172.27.30.27:8000/inventory');

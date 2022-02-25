@@ -9,7 +9,12 @@ class InventoryGateway
     function findAll(){
         $current_data = file_get_contents(DB_FILE);
         $array_data = json_decode($current_data, true);
-        return $array_data;
+        $respData = [];
+        $respData["status"] = "success";
+        $respData["total"] = count($array_data);
+        $respData["records"] = $array_data;
+
+        return $respData;
     }
     function createInventory($input) {
         $message = [];
