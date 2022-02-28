@@ -15,19 +15,19 @@
             <div class="control-group">
                 <label class="control-label" for="product_name">Product name</label>
                 <div class="controls">
-                    <input type="text" class="input-xlarge required" id="product_name" name="product_name">
+                    <input type="text" class="input-xlarge required" id="product_name">
                 </div>
             </div>
             <div class="control-group">
                 <label class="control-label" for="quantity_in_stock">Quantity in stock:</label>
                 <div class="controls">
-                    <input type="text" class="input-xlarge required" name="quantity_in_stock" id="quantity_in_stock">
+                    <input type="text" class="input-xlarge required" id="quantity_in_stock">
                 </div>
             </div>
             <div class="control-group">
                 <label class="control-label" for="price_per_item">Price per item:</label>
                 <div class="controls">
-                    <input type="text" class="input-xlarge required" name="price_per_item" id="price_per_item">
+                    <input type="text" class="input-xlarge required" id="price_per_item">
                 </div>
             </div>
 
@@ -66,7 +66,24 @@
                 }
             });
             if ($('span.error').length == "0") {
-                console.log('no error')
+                console.log("with no error");
+                let formData = {
+                    product_name: $("#product_name").val(),
+                    quantity_in_stock: $("#quantity_in_stock").val(),
+                    price_per_item: $("#price_per_item").val(),
+                };
+
+                $.ajax({
+                    type: "POST",
+                    url: "http://localhost:8000/inventory",
+                    data: JSON.stringify(formData),
+                    dataType: "json",
+                    encode: true,
+                }).done((data) => {
+                    w2ui['gridInventory'].load('http://localhost:8000/inventory');
+                    alert('Item added successfully');
+                    console.log(data);
+                });
             }
         });
     $('#reset-inventory')
@@ -76,23 +93,7 @@
         });
 
     $(function () {
-        $('#theForm').w2form({
-            name   : 'theForm',
-            fields : [
-                { field: 'product_name', type: 'text', required: true },
-                { field: 'quantity_in_stock',  type: 'text', required: true },
-                { field: 'price_per_item',   type: 'text'}
-            ],
-            actions: {
-                reset: function () {
-                    this.clear();
-                },
-                save: function () {
-                    console.log('crazy');
-                    //this.save();
-                }
-            }
-        });
+
         $('#gridInventory').w2grid({
             name: 'gridInventory',
             header: '<label style="color: #2e6da4; font-weight: bold; ">Inventory</label>',
@@ -109,16 +110,40 @@
                 { field: 'product_name', text: 'Product name', type: 'text' },
                 { field: 'quantity_in_stock', text: 'Quantity in stock', type: 'text' },
                 { field: 'price_per_item', text: 'Price per item', type: 'text' },
-                { field: 'created_at', text: 'Created At', type: 'date' }
+                { field: 'created_at', text: 'Created At', type: 'date' },
+                { field: 'total_value_number', text: 'Total value number', type: 'number' }
             ],
             columns: [
-                { field: 'product_name', text: 'Product name', size: '30%', sortable: true },
-                { field: 'quantity_in_stock', text: 'Quantity in stock', size: '20%', sortable: true },
-                { field: 'price_per_item', text: 'Price per item', size: '20%', sortable: true },
+                { field: 'product_name', text: 'Product name', size: '30%', sortable: true, editable: { type: 'text' } },
+                { field: 'quantity_in_stock', text: 'Quantity in stock', size: '20%', sortable: true, editable: { type: 'text' } },
+                { field: 'price_per_item', text: 'Price per item', size: '20%', sortable: true, editable: { type: 'text' } },
                 { field: 'created_at', text: 'Created At', size: '20%', sortable: true },
-                { field: 'total_value_number', text: 'Total value number', size: '20%', sortable: true }
+                { field: 'total_value_number', text: 'Total value number', size: '20%', sortable: true  }
             ],
-            onLoad: function (event) {
+            onChange: function(event) {
+                event.onComplete = () => {
+                    var record = w2ui.gridInventory.get(event['recid']);
+                    const updateData = {};
+                    updateData["recid"] = record["recid"];
+                    updateData["product_name"] = record["product_name"];
+                    updateData["quantity_in_stock"] = record["quantity_in_stock"];
+                    updateData["price_per_item"] = record["price_per_item"];
+                    const key = Object.keys(record["w2ui"]["changes"])[0];
+                    updateData[key] = record["w2ui"]["changes"][key];
+                    console.log(JSON.stringify(updateData));
+                    $.ajax({
+                        type: "PUT",
+                        url: "http://localhost:8000/inventory",
+                        data: JSON.stringify(updateData),
+                        dataType: "json",
+                        encode: true
+                    }).done((data) => {
+                        alert('Item updated successfully');
+                        console.log("PUT");
+                    });
+                }
+            },
+            onLoad: (event) => {
                 console.log('onload');
 
                 event.onComplete = function () {
@@ -138,7 +163,7 @@
                 }
             },
         });
-        w2ui['gridInventory'].load('http://172.27.30.27:8000/inventory');
+        w2ui['gridInventory'].load('http://localhost:8000/inventory');
 
     });
 

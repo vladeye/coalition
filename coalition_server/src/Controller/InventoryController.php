@@ -26,20 +26,13 @@ class InventoryController {
     {
         switch ($this->requestMethod) {
             case 'GET':
-                if ($this->Id) {
-                    $response = $this->getInventory($this->Id);
-                } else {
-                    $response = $this->getAllInventory();
-                };
+                $response = $this->getAllInventory();
                 break;
             case 'POST':
                 $response = $this->createInventoryFromRequest();
                 break;
             case 'PUT':
                 $response = $this->updateInventoryFromRequest();
-                break;
-            case 'DELETE':
-                $response = $this->deleteInventory($this->Id);
                 break;
             default:
                 $response = $this->notFoundResponse();
@@ -59,16 +52,6 @@ class InventoryController {
         return $response;
     }
 
-    private function getInventory($id)
-    {
-        $result = $this->inventoryGateway->find($id);
-        if (! $result) {
-            return $this->notFoundResponse();
-        }
-        $response['status_code_header'] = 'HTTP/1.1 200 OK';
-        $response['body'] = json_encode($result);
-        return $response;
-    }
 
     private function notFoundResponse()
     {
@@ -94,11 +77,6 @@ class InventoryController {
         return $response;
     }
 
-    private function deleteInventory($Id){
-        $result = $this->inventoryGateway->deleteInventory($Id);
-        $response['status_code_header'] = 'HTTP/1.1 200 OK';
-        $response['body'] = json_encode($result);
-        return $response;
-    }
+
 
 }
